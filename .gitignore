@@ -1,0 +1,236 @@
+# ============================================
+# Resume Builder SaaS - Git Ignore File
+# ============================================
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# Build Output
+# ============================================
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Runtime Data
+# ============================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Coverage Directory
+# ============================================
+coverage/
+*.lcov
+.nyc_output/
+
+# ============================================
+# IDE and Editor Files
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.history/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*.swn
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# Temporary Files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+
+# ============================================
+# Uploads and User Content
+# ============================================
+uploads/
+public/uploads/
+user-content/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+
+# ============================================
+# Database Files
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+data/
+db-data/
+
+# ============================================
+# SSL Certificates
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+ssl/
+certs/
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+
+# ============================================
+# CI/CD
+# ============================================
+.github/
+.gitlab-ci.yml
+.travis.yml
+circle.yml
+appveyor.yml
+
+# ============================================
+# Backup Files
+# ============================================
+*.bak
+*.backup
+*.old
+
+# ============================================
+# Testing
+# ============================================
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ============================================
+# Documentation Builds
+# ============================================
+docs/_build/
+site/
+
+# ============================================
+# Redis Dump
+# ============================================
+dump.rdb
+
+# ============================================
+# MongoDB
+# ============================================
+mongod.log
+mongo-express.log
+
+# ============================================
+# Application Specific
+# ============================================
+# Session files
+sessions/
+session-store/
+
+# Queue files
+queue-logs/
+
+# Analytics
+analytics-events/
+
+# Feature Flags
+feature-flags.json
+
+# ============================================
+# Security
+# ============================================
+# Secrets and keys
+secrets/
+*.secrets
+private-keys/
+*.p12
+*.pfx
+
+# ============================================
+# Misc
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.stylelintcache
+
+/generated/prisma
