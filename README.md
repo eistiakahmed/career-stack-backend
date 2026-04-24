@@ -445,9 +445,8 @@ This project is licensed under the MIT License.
 
 ## 📞 Support
 
-- Email: support@yourplatform.com
-- Documentation: https://docs.yourplatform.com
-- Issues: https://github.com/yourusername/resume-builder-backend/issues
+- Email: eistiakahmedmeraj@gmail.com
+- Issues: https://github.com/eistiakahmed/resume-builder-backend/issues
 
 ---
 
