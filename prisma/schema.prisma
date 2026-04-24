@@ -1,0 +1,385 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+// ============================================
+// USER MODEL
+// ============================================
+
+enum UserRole {
+  GUEST
+  USER
+  PREMIUM
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+  DELETED
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id               String              @id @default(auto()) @map("_id") @db.ObjectId
+  email            String              @unique
+  password         String
+  firstName        String
+  lastName         String
+  role             UserRole            @default(USER)
+  status           UserStatus          @default(ACTIVE)
+  subscriptionTier SubscriptionTier   @default(FREE)
+
+  // Profile Information
+  avatar           String?
+  bio              String?
+  location         String?
+  website          String?
+  linkedinUrl      String?
+  githubUrl        String?
+  portfolioUrl     String?
+
+  // Email Verification
+  isEmailVerified  Boolean             @default(false)
+  emailVerificationToken   String?
+  emailVerificationExpires DateTime?
+
+  // Password Reset
+  resetPasswordToken     String?
+  resetPasswordExpires   DateTime?
+
+  // OAuth Providers
+  oauthProviders     Json?
+  socialId           String?
+
+  // Two-Factor Authentication
+  twoFactorEnabled   Boolean             @default(false)
+  twoFactorSecret    String?
+
+  // Subscription Management
+  subscriptionId     String?
+  subscriptionStatus String?
+  subscriptionEndsAt DateTime?
+
+  // Usage Tracking
+  aiCreditsUsed     Int                @default(0)
+  resumesCreated    Int                @default(0)
+
+  // Portfolio
+  portfolioUsername String?             @unique
+  portfolioEnabled  Boolean             @default(false)
+
+  // Timestamps
+  lastLoginAt       DateTime?
+  lastLoginIP       String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  resumes           Resume[]
+  subscriptions     Subscription[]
+  sessions          Session[]
+  events            Event[]
+
+  @@map("users")
+}
+
+// ============================================
+// RESUME MODEL
+// ============================================
+
+enum ResumeStatus {
+  DRAFT
+  COMPLETE
+  ARCHIVED
+}
+
+model Resume {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String        @map("userId") @db.ObjectId
+  user             User          @relation(fields: [userId], references: [id])
+
+  // Basic Information
+  title            String
+  slug             String        @unique
+  targetJobTitle   String?
+
+  // Template
+  templateId       String        @map("templateId") @db.ObjectId
+  template         Template?     @relation(fields: [templateId], references: [id])
+
+  // Status & Visibility
+  status           ResumeStatus  @default(DRAFT)
+  isPublic         Boolean       @default(false)
+
+  // Sharing
+  shareToken       String?       @unique
+  isShared         Boolean       @default(false)
+  shareExpiresAt   DateTime?
+
+  // Custom Sections
+  customSections   Json?         // Array of custom section objects
+
+  // Content Sections
+  summary          String?
+
+  workExperience   Json[]         // Array of work experience objects
+  education        Json[]         // Array of education objects
+  skills           Json[]         // Array of skill objects
+  projects         Json[]         // Array of project objects
+  certifications   Json[]         // Array of certification objects
+  languages        Json[]         // Array of language objects
+  interests        Json[]         // Array of interest objects
+
+  // Section Configuration
+  sectionOrder      Json?         // Array of section names in order
+  hiddenSections    Json?         // Array of hidden section names
+
+  // Styling
+  styling          Json?          // Custom styling options
+
+  // AI Analysis
+  atsAnalysis      Json?          // ATS scoring and analysis
+
+  // Usage
+  aiCreditsUsed    Int           @default(0)
+  lastModifiedAt   DateTime      @updatedAt
+
+  // Metadata
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("resumes")
+}
+
+// ============================================
+// TEMPLATE MODEL
+// ============================================
+
+enum TemplateCategory {
+  MINIMAL
+  CORPORATE
+  CREATIVE
+  PROFESSIONAL
+  ACADEMIC
+  TECHNICAL
+  EXECUTIVE
+  ENTRY_LEVEL
+}
+
+model Template {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Basic Information
+  name              String
+  slug              String            @unique
+  description       String?
+  category          TemplateCategory
+
+  // Access Control
+  requiredTier      SubscriptionTier @default(FREE)
+  isActive          Boolean           @default(true)
+  isFeatured        Boolean           @default(false)
+  isPremium         Boolean           @default(false)
+
+  // Preview
+  thumbnailUrl      String?
+  previewUrl        String?
+
+  // Customization Options
+  customization     Json?             // What can be customized
+  features          Json?             // Array of features
+
+  // Usage Statistics
+  usageCount        Int               @default(0)
+  rating            Float             @default(0)
+  reviewsCount      Int               @default(0)
+
+  // Metadata
+  sortOrder         Int               @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  resumes           Resume[]
+
+  @@index([category])
+  @@index([requiredTier])
+  @@index([isActive, isFeatured])
+  @@map("templates")
+}
+
+// ============================================
+// SUBSCRIPTION MODEL
+// ============================================
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  TRIALING
+}
+
+model Subscription {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String              @map("userId") @db.ObjectId
+  user                User                @relation(fields: [userId], references: [id])
+
+  // Stripe Information
+  stripeSubscriptionId String?           @unique
+  stripeCustomerId   String?
+  stripePriceId      String?
+
+  // Plan Details
+  tier                SubscriptionTier
+  status              SubscriptionStatus
+
+  // Billing
+  currentPeriodStart  DateTime?
+  currentPeriodEnd    DateTime?
+  cancelAtPeriodEnd   Boolean             @default(false)
+
+  // Usage
+  resumesAllowed     Int                @default(3)
+  aiCreditsAllowed    Int                @default(5)
+  resumesUsed         Int                @default(0)
+  aiCreditsUsed       Int                @default(0)
+
+  // Timestamps
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+// ============================================
+// SESSION MODEL
+// ============================================
+
+model Session {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String    @map("userId") @db.ObjectId
+  user           User      @relation(fields: [userId], references: [id])
+
+  // Token Information
+  refreshToken   String    @unique
+  accessToken    String?
+
+  // Device Information
+  deviceInfo     Json?     // IP, user agent, etc.
+
+  // Expiration
+  expiresAt      DateTime
+
+  // Status
+  isRevoked      Boolean   @default(false)
+  revokedAt      DateTime?
+
+  // Timestamps
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// ============================================
+// ANALYTICS MODEL
+// ============================================
+
+model Event {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?  @map("userId") @db.ObjectId
+  user        User?    @relation(fields: [userId], references: [id])
+
+  // Event Details
+  eventType   String   // login, resume_created, ai_used, etc.
+  eventData   Json?    // Additional event data
+
+  // Metadata
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+
+  // Timestamp
+  occurredAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([occurredAt])
+  @@map("events")
+}
+
+// ============================================
+// ANALYTICS AGGREGATION
+// ============================================
+
+model Analytics {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?  @map("userId") @db.ObjectId
+
+  // Date
+  date        DateTime @default(now())
+
+  // Metrics
+  eventCounts Json?    // { login: 5, resume_created: 3 }
+
+  // Performance
+  responseTime Json?   // Avg response times
+
+  @@unique([userId, date])
+  @@index([date])
+  @@map("analytics")
+}
+
+// ============================================
+// PORTFOLIO MODEL
+// ============================================
+
+model Portfolio {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @unique @map("userId") @db.ObjectId
+  username    String   @unique
+
+  // Profile
+  displayName String?
+  bio         String?
+  avatar      String?
+
+  // Settings
+  isActive    Boolean  @default(true)
+  theme       Json?    // Theme customization
+
+  // Analytics
+  viewCount   Int      @default(0)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("portfolios")
+}
